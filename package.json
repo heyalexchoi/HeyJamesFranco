@@ -5,7 +5,8 @@
   "main": "HeyJamesFranco.js",
   "dependencies": {
     "oauth": "0.9.9",
-    "twit": "1.1.18"
+    "twit": "1.1.18",
+    "express": "4.7.4"
   },
   "devDependencies": {},
   "scripts": {
