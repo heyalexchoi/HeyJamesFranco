@@ -14,6 +14,12 @@ var T = new Twit({
 });
 
 
+T.get('statuses/home_timeline', {count: 5}, function (err, reply) {
+  if (err)
+    return console.log('err', err)
+
+  console.log('reply', reply)
+})
 
 // search twitter for (count) number of replies to @jamesfrancotv. executes callback function on array of tweet results
 function getReplies(count, repliesCallback) {
@@ -30,11 +36,8 @@ function getReplies(count, repliesCallback) {
 	console.log(process.env.TWITTER_CONSUMER_SECRET);
 	console.log(process.env.TWITTER_ACCESS_TOKEN);
 	console.log(process.env.TWITTER_ACCESS_TOKEN_SECRET);
-	console.log("T.credentials");
-	console.log(T.consumer_key);
-	console.log(T.consumer_secret);
-	console.log(T.access_token);
-	console.log(T.access_token_secret);
+	console.log("T");
+	console.log(T);
 });	
 }
 // retweets tweet with tweetID, then executes callback function. 
