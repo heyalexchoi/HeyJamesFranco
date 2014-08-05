@@ -1,44 +1,44 @@
 #!/usr/bin/env/node
 
-console.log("Hi James Franco");
+console.log("Hey James Franco");
 
 var Twit = require('twit');
 
+// credentials stored in local, uncommitted .env file
 var T = new Twit({
-    consumer_key:         process.env.TWITTER_CONSUMER_KEY
+    consumer_key:         process.env.TWITTER_CONSUMER_KEY 
   , consumer_secret:      process.env.TWITTER_CONSUMER_SECRET
   , access_token:         process.env.TWITTER_ACCESS_TOKEN
   , access_token_secret:  process.env.TWITTER_ACCESS_TOKEN_SECRET
 });
 
+// search twitter for (count) number of replies to @jamesfrancotv. executes callback function on array of tweet results
 function getReplies(count, repliesCallback) {
 	T.get('search/tweets', { q:"jamesfrancotv", "in_reply_to_screen_name":'jamesfrancotv', count: count}, function(error, data, response) {
 	if (error) {
-		console.log(error);
-		callback(error);
+		console.error(error);		
+	} else {
+		repliesCallback(data.statuses);	
 	}
-	repliesCallback(data.statuses);
+	
 });	
 }
-
+// retweets tweet with tweetID, then executes callback function. 
+// tweetCount and errorCount tally success/failure
 function reTweetID(tweetID, callback, tweetCount, errorCount) {	
 	tweetID = tweetID.toString();
 	T.post('statuses/retweet/:id', { id: tweetID.toString() }, function (err, data, response) {
-  		//console.log('retweeted tweet ID: ' + tweetID);
-  		//console.error('error' + err);
   		if (err !== null) {
   			errorCount ++;
-  			//console.log('errorCount: ' + errorCount);
-  			console.log('retweet error: ' + err);
+  			console.error('retweet error #' + errorCount + ' : ' + err);
   		}
   		else {
-  			tweetCount ++;
-  			//console.log('tweetCount: ' + tweetCount);
+  			tweetCount ++;  			
   		}
   		callback(tweetCount, errorCount);
 });
 }
-
+// recursively calls reTweetID on array of tweets (replies). logs tweets and errors on completion.
 function reTweetReplies(replies, tweetCount, errorCount) {
 	if (replies.length < 1) {
 		console.log('tweeted: ' + tweetCount + 'times. ' + errorCount + ' errors');
@@ -51,7 +51,7 @@ function reTweetReplies(replies, tweetCount, errorCount) {
 	
 }
 
-
+// retweets (count) number of replies to @jamesfrancotv's tweets
 function sayHeyToJames(count){
 getReplies(count, function (replies) {
 	var tweetCount = 0;
@@ -61,10 +61,11 @@ getReplies(count, function (replies) {
 }
 
 if(require.main == module) {
-    //console.error('Invoked at command line.');
+    console.error('Invoked at command line.');
     var args = process.argv;
-    if (args.length != 3 || Number.isNaN(args[2])) {
-    	sayHeyToJames(1);
+    // can take positive numerical argument to say hey to james that many times
+    if (args.length != 3 || Number.isNaN(args[2]) || args[2] < 1) {
+    	sayHeyToJames(1);    	
     } else {
     	sayHeyToJames(args[2]);
     }
@@ -73,6 +74,8 @@ if(require.main == module) {
 }
 
 exports.sayHeyToJames = sayHeyToJames;
+
+// twit library examples:
 
 //
 //  tweet 'hello world!'
