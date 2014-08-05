@@ -1,6 +1,7 @@
-//#!/usr/bin/env/node
+#!/usr/bin/env/node
+console.log('configvalues\n' + process.env.TWITTER_CONSUMER_KEY + '\n' + process.env.TWITTER_CONSUMER_SECRET + '\n' + process.env.TWITTER_ACCESS_TOKEN + '\n' + process.env.TWITTER_ACCESS_TOKEN_SECRET);
+console.log("Hey James Franco 2");
 
-console.log("Hey James Franco");
 
 var Twit = require('twit');
 
@@ -12,11 +13,13 @@ var T = new Twit({
   , access_token_secret:  process.env.TWITTER_ACCESS_TOKEN_SECRET
 });
 
+
+
 // search twitter for (count) number of replies to @jamesfrancotv. executes callback function on array of tweet results
 function getReplies(count, repliesCallback) {
 	T.get('search/tweets', { q:"jamesfrancotv", "in_reply_to_screen_name":'jamesfrancotv', count: count}, function(error, data, response) {
 	if (error !== null) {
-		console.error(error);		
+		console.error('getReplies error: ' + error);		
 	} else {
 		repliesCallback(data.statuses);	
 	}
