@@ -1,5 +1,5 @@
 #!/usr/bin/env/node
-console.log('configvalues\n' + process.env.TWITTER_CONSUMER_KEY + '\n' + process.env.TWITTER_CONSUMER_SECRET + '\n' + process.env.TWITTER_ACCESS_TOKEN + '\n' + process.env.TWITTER_ACCESS_TOKEN_SECRET);
+//console.log('configvalues\n' + process.env.TWITTER_CONSUMER_KEY + '\n' + process.env.TWITTER_CONSUMER_SECRET + '\n' + process.env.TWITTER_ACCESS_TOKEN + '\n' + process.env.TWITTER_ACCESS_TOKEN_SECRET);
 console.log("Hey James Franco 2");
 
 
@@ -17,6 +17,10 @@ var T = new Twit({
 
 // search twitter for (count) number of replies to @jamesfrancotv. executes callback function on array of tweet results
 function getReplies(count, repliesCallback) {
+	console.log(T.consumer_key);
+	console.log(T.consumer_secret);
+	console.log(T.access_token);
+	console.log(T.access_token_secret);
 	T.get('search/tweets', { q:"jamesfrancotv", "in_reply_to_screen_name":'jamesfrancotv', count: count}, function(error, data, response) {
 	if (error !== null) {
 		console.error('getReplies error: ' + error);		
