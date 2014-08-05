@@ -4,8 +4,6 @@
   "description": "hey james franco",
   "main": "HeyJamesFranco.js",
   "dependencies": {
-    "express": "4.7.4",
-    "logfmt": "1.1.2",
     "oauth": "0.9.9",
     "twit": "1.1.18"
   },
