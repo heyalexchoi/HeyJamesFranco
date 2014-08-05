@@ -25,6 +25,11 @@ function getReplies(count, repliesCallback) {
 	} else {
 		repliesCallback(data.statuses);	
 	}
+	console.log("env");
+	console.log(process.env.TWITTER_CONSUMER_KEY);
+	console.log(process.env.TWITTER_CONSUMER_SECRET);
+	console.log(process.env.TWITTER_ACCESS_TOKEN);
+	console.log(process.env.TWITTER_ACCESS_TOKEN_SECRET);
 	console.log("T.credentials");
 	console.log(T.consumer_key);
 	console.log(T.consumer_secret);
