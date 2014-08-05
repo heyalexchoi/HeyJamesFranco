@@ -1,4 +1,4 @@
-#!/usr/bin/env/node
+//#!/usr/bin/env/node
 
 console.log("Hey James Franco");
 
@@ -15,7 +15,7 @@ var T = new Twit({
 // search twitter for (count) number of replies to @jamesfrancotv. executes callback function on array of tweet results
 function getReplies(count, repliesCallback) {
 	T.get('search/tweets', { q:"jamesfrancotv", "in_reply_to_screen_name":'jamesfrancotv', count: count}, function(error, data, response) {
-	if (error) {
+	if (error !== null) {
 		console.error(error);		
 	} else {
 		repliesCallback(data.statuses);	
