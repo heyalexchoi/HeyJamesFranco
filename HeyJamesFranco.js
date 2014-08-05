@@ -1,7 +1,10 @@
 #!/usr/bin/env/node
 console.log("Hey James Franco");
 
+var env = require('node-env-file');
 var Twit = require('twit');
+
+env(__dirname + '/.env');
 
 // credentials stored in local, uncommitted .env file
 var T = new Twit({
