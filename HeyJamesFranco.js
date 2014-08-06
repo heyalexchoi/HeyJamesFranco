@@ -18,7 +18,7 @@ var T = new Twit({
 function getReplies(count, repliesCallback) {
 	T.get('search/tweets', { q:"jamesfrancotv", "in_reply_to_screen_name":'jamesfrancotv', count: count}, function(error, data, response) {
 	if (error !== null) {
-		console.error('getReplies error: ' + error);		
+		console.error(Date() + 'getReplies error: ' + error);		
 	} else {
 		repliesCallback(data.statuses);	
 	}
@@ -31,7 +31,7 @@ function reTweetID(tweetID, callback, tweetCount, errorCount) {
 	T.post('statuses/retweet/:id', { id: tweetID.toString() }, function (err, data, response) {
   		if (err !== null) {
   			errorCount ++;
-  			console.error('retweet error #' + errorCount + ' : ' + err);
+  			console.error(Date() + 'retweet error #' + errorCount + ' : ' + err);
   		}
   		else {
   			tweetCount ++;  			
@@ -42,7 +42,7 @@ function reTweetID(tweetID, callback, tweetCount, errorCount) {
 // recursively calls reTweetID on array of tweets (replies). logs tweets and errors on completion.
 function reTweetReplies(replies, tweetCount, errorCount) {
 	if (replies.length < 1) {
-		console.log('tweeted: ' + tweetCount + 'times. ' + errorCount + ' errors');
+		console.log(Date() + 'tweeted: ' + tweetCount + 'times. ' + errorCount + ' errors');
 		return;
 	}
 	var tweet = replies.pop();	
@@ -62,7 +62,7 @@ getReplies(count, function (replies) {
 }
 
 if(require.main == module) {
-    console.error('Invoked at command line.');
+    console.error(Date() + 'Invoked at command line.');
     var args = process.argv;
     // can take positive numerical argument to say hey to james that many times
     if (args.length != 3 || Number.isNaN(args[2]) || args[2] < 1) {
@@ -71,7 +71,7 @@ if(require.main == module) {
     	sayHeyToJames(args[2]);
     }
 } else {
-    console.error('Invoked via library call');
+    console.error(Date() + 'Invoked via library call');
 }
 
 exports.sayHeyToJames = sayHeyToJames;
