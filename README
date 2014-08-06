@@ -1,0 +1,3 @@
+HeyJamesFranco.js is a script that searches twitter for replies to @JamesFrancoTV and retweets them. 
+
+I currently use it with twitter account @HeyJamesFranco and cron to push out 100 retweets an hour, or 2400 retweets a day - the maximum amount of activity allowed by twitter.
