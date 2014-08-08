@@ -24,6 +24,16 @@ function getReplies(count, repliesCallback) {
 	}
 });	
 }
+// search twitter for (count) number of tweets to @jamesfrancotv. executes callback function on array of tweet results
+function getMentions(count, callback) {
+	T.get('search/tweets', { q:"@jamesfrancotv", count: count}, function(error, data, response) {
+	if (error !== null) {
+		console.error(Date() + 'getMentions error: ' + error);		
+	} else {
+		callback(data.statuses);	
+	}
+});	
+}
 // retweets tweet with tweetID, then executes callback function. 
 // tweetCount and errorCount tally success/failure
 function reTweetID(tweetID, callback, tweetCount, errorCount) {	
@@ -39,25 +49,26 @@ function reTweetID(tweetID, callback, tweetCount, errorCount) {
   		callback(tweetCount, errorCount);
 });
 }
-// recursively calls reTweetID on array of tweets (replies). logs tweets and errors on completion.
-function reTweetReplies(replies, tweetCount, errorCount) {
-	if (replies.length < 1) {
+// recursively calls reTweetID on array of tweets. logs tweets and errors on completion.
+function reTweetTweets(tweets, tweetCount, errorCount) {
+	if (tweets.length < 1) {
 		console.log(Date() + 'tweeted: ' + tweetCount + 'times. ' + errorCount + ' errors');
 		return;
 	}
-	var tweet = replies.pop();	
+	var tweet = tweets.pop();	
 	reTweetID(tweet.id_str, function(tweetCount,errorCount) {
-		reTweetReplies(replies, tweetCount, errorCount);
+		reTweetTweets(tweets, tweetCount, errorCount);
 	}, tweetCount, errorCount);
 	
 }
 
 // retweets (count) number of replies to @jamesfrancotv's tweets
 function sayHeyToJames(count){
-getReplies(count, function (replies) {
+//getReplies(count, function (replies) {
+getMentions(count, function (tweets) {
 	var tweetCount = 0;
 	var errorCount = 0;
-	reTweetReplies(replies, tweetCount, errorCount);
+	reTweetTweets(tweets, tweetCount, errorCount);
 });
 }
 
