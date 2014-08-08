@@ -41,7 +41,8 @@ function reTweetID(tweetID, callback, tweetCount, errorCount) {
 	T.post('statuses/retweet/:id', { id: tweetID.toString() }, function (err, data, response) {
   		if (err !== null) {
   			errorCount ++;
-  			console.error(Date() + 'retweet error #' + errorCount + ' : ' + err);
+  			console.error(Date() + 'retweet error #' + errorCount + ' err.code: '
+				      + err.code + ' err.message: ' + err.message + ' response status code: ' +  response.statusCode);
   		}
   		else {
   			tweetCount ++;  			
