@@ -37,7 +37,6 @@ function getMentions(count, callback) {
 // retweets tweet with tweetID, then executes callback function. 
 // tweetCount and errorCount tally success/failure
 function reTweetID(tweetID, callback, tweetCount, errorCount) {	
-	tweetID = tweetID.toString();
 	T.post('statuses/retweet/:id', { id: tweetID.toString() }, function (err, data, response) {
   		if (err !== null) {
   			errorCount ++;
@@ -50,15 +49,29 @@ function reTweetID(tweetID, callback, tweetCount, errorCount) {
   		callback(tweetCount, errorCount);
 });
 }
+
+function favoriteTweetID(tweetID, callback, favoriteCount, errorCount) {
+	T.post('favorites/create', { id: tweetID.toString() }, function (error, data, response) {
+		if (error) {
+			errorCount ++;
+			console.error(Date() + 'favorite error #' + errorCount + ' error code: ' + error.code + 'error message: ' 
+				+ error.message);
+		} else {
+			favoriteCount ++;
+		}
+		callback(favoriteCount, errorCount);
+	});
+}
 // recursively calls reTweetID on array of tweets. logs tweets and errors on completion.
-function reTweetTweets(tweets, tweetCount, errorCount) {
+function reTweetTweets(tweets, tweetCount, errorCount, favoriteCount) {
 	if (tweets.length < 1) {
-		console.log(Date() + 'tweeted: ' + tweetCount + 'times. ' + errorCount + ' errors');
+		console.log(Date() + 'tweeted: ' + tweetCount + 'times. ' + 'favorited: ' + favoriteCount + 'times. ' + errorCount + ' errors');
 		return;
 	}
 	var tweet = tweets.pop();	
+	favoriteTweetID(tweet.id_str, function(){}, favoriteCount, errorCount);
 	reTweetID(tweet.id_str, function(tweetCount,errorCount) {
-		reTweetTweets(tweets, tweetCount, errorCount);
+		reTweetTweets(tweets, tweetCount, errorCount, favoriteCount);
 	}, tweetCount, errorCount);
 	
 }
@@ -69,7 +82,8 @@ function sayHeyToJames(count){
 getMentions(count, function (tweets) {
 	var tweetCount = 0;
 	var errorCount = 0;
-	reTweetTweets(tweets, tweetCount, errorCount);
+	var favoriteCount = 0;
+	reTweetTweets(tweets, tweetCount, errorCount, favoriteCount);
 });
 }
 
@@ -78,7 +92,8 @@ if(require.main == module) {
     var args = process.argv;
     // can take positive numerical argument to say hey to james that many times
     if (args.length != 3 || Number.isNaN(args[2]) || args[2] < 1) {
-    	sayHeyToJames(1);    	
+    	sayHeyToJames(1);  
+    	 	
     } else {
     	sayHeyToJames(args[2]);
     }
