@@ -86,8 +86,11 @@ function sayHeyToJames(count) {
 	})
 	.then(function() {
 		// log final results
-		console.log('\n' + Date() + '\nretweeted: ' + retweetCount + '\nfavorited: ' + favoriteCount 
-			+ '\n retweet errors: ' + retweetErrorCount + '\n favorite errors: ' + favoriteErrorCount);
+		console.log('\n' + Date() 
+			+ '\n retweeted: ' + retweetCount 
+			+ '\n favorited: ' + favoriteCount 
+			+ '\n retweet errors: ' + retweetErrorCount 
+			+ '\n favorite errors: ' + favoriteErrorCount);
 	});
 }
 
