@@ -63,7 +63,7 @@ function sayHeyToJames(count) {
 			.catch(function (reject) {
 				// count and error log the favorite failures
 				favoriteErrorCount ++;
-				console.error(reject);
+				console.error('favorite error: ' + reject);
 			});
 		});
 		// create array of promises to retweet all the tweets
@@ -76,7 +76,7 @@ function sayHeyToJames(count) {
 			.catch(function (reject) {
 				// count and error log the retweet failures
 				retweetErrorCount ++;
-				console.error(reject);
+				console.error('retweet error:' + reject);
 			});
 		});
 		// combine both promise arrays
