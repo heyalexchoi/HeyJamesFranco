@@ -60,7 +60,7 @@ function sayHeyToJames(count) {
 			})
 			.fail(function(error) {
 				retweetErrorCount ++;
-				console.error(Date() + error.allErrors);
+				console.error(Date() + error.message);
 			})
 			.done();
 		});
@@ -70,7 +70,7 @@ function sayHeyToJames(count) {
 			})
 			.fail(function(error) {
 				favoriteErrorCount ++;
-				console.error(Date() + error.allErrors);
+				console.error(Date() + error.message);
 			})
 			.done();
 		});
