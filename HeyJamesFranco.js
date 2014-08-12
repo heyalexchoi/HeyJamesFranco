@@ -29,7 +29,7 @@ function getMentions(count) {
 function reTweetID(tweetID) {
 	return Q.Promise(function (fullfill, reject) {
 		T.post('statuses/retweet/:id', { id: tweetID.toString() }, function(error, data, response) {
-			if (error) reject(error);
+			if (error) reject(error.allErrors);
 			else fullfill(data);
 		});
 	});	
@@ -38,7 +38,7 @@ function reTweetID(tweetID) {
 function favoriteTweetID(tweetID) {
 	return Q.Promise(function (fullfill, reject) {
 		T.post('favorites/create', { id: tweetID.toString() }, function(error, data, response) {
-			if (error) reject(error);
+			if (error) reject(error.message);
 			else fullfill(data);
 		});	
 	});
@@ -50,34 +50,42 @@ function sayHeyToJames(count) {
 	var retweetCount = 0;
 	var favoriteErrorCount = 0;
 	var retweetErrorCount = 0;
-	// get all the mentions
+	// get promise for tweet array of mentions
 	getMentions(count)
-	// retweet and favorite all of them
-	.then(function(tweets) {
-		var retweetPromises = tweets.map(function(tweet) {
-			reTweetID(tweet.id_str).then(function(data) {
-				retweetCount ++;
+	.then(function (tweets) {
+		// create array of promises to favorite all the tweets
+		var favorites = tweets.map(function(tweet) {
+			return favoriteTweetID(tweet.id_str)
+			.then(function (data) {
+				// count the successful favorites
+				favoriteCount ++;				
 			})
-			.fail(function(error) {
-				retweetErrorCount ++;
-				console.error(Date() + error.message);
-			})
-			.done();
-		});
-		var favoritePromises = tweets.map(function(tweet) {
-			favoriteTweetID(tweet.id_str).then(function(data) {
-				favoriteCount ++;
-			})
-			.fail(function(error) {
+			.catch(function (reject) {
+				// count and error log the favorite failures
 				favoriteErrorCount ++;
-				console.error(Date() + error.message);
-			})
-			.done();
+				console.error(reject);
+			});
 		});
-		var bothPromises = favoritePromises.concat(retweetPromises);
-		return Q.allSettled(bothPromises);
-		})
+		// create array of promises to retweet all the tweets
+		var retweets = tweets.map(function(tweet) {
+			return reTweetID(tweet.id_str)
+			.then(function (data) {
+				// count successful retweets
+				retweetCount ++;			
+			})
+			.catch(function (reject) {
+				// count and error log the retweet failures
+				retweetErrorCount ++;
+				console.error(reject);
+			});
+		});
+		// combine both promise arrays
+		var both = favorites.concat(retweets);
+		// return a promise for the whole fulfilled array that will wait for all promises to either fulfill or reject
+		return Q.allSettled(both);
+	})
 	.then(function() {
+		// log final results
 		console.log('\n' + Date() + '\nretweeted: ' + retweetCount + '\nfavorited: ' + favoriteCount 
 			+ '\n retweet errors: ' + retweetErrorCount + '\n favorite errors: ' + favoriteErrorCount);
 	});
