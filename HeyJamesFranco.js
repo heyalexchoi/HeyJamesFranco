@@ -4,6 +4,8 @@ console.log("Hey James Franco");
 var env = require('node-env-file');
 var Twit = require('twit');
 var Q = require('q');
+var Mailgun = require('mailgun').Mailgun;
+var mgRecipients = require('./mailgun-recipients');
 
 env(__dirname + '/.env');
 
@@ -14,6 +16,8 @@ var T = new Twit({
 	, access_token:         process.env.TWITTER_ACCESS_TOKEN
 	, access_token_secret:  process.env.TWITTER_ACCESS_TOKEN_SECRET
 });
+
+var mg = new Mailgun(process.env.MAILGUN_API_KEY);
 
 // search twitter for (count) number of tweets to @jamesfrancotv. returns promise that fullfills with array of tweets
 function getMentions(count) {
@@ -76,7 +80,7 @@ function sayHeyToJames(count) {
 			.catch(function (reject) {
 				// count and error log the retweet failures
 				retweetErrorCount ++;
-				console.error('retweet error:' + reject);
+				console.error(Date() + 'retweet error:' + reject);
 			});
 		});
 		// combine both promise arrays
@@ -86,11 +90,26 @@ function sayHeyToJames(count) {
 	})
 	.then(function() {
 		// log final results
-		console.log('\n' + Date() 
+		var results = '\n' + Date() 
 			+ '\n retweeted: ' + retweetCount 
 			+ '\n favorited: ' + favoriteCount 
 			+ '\n retweet errors: ' + retweetErrorCount 
-			+ '\n favorite errors: ' + favoriteErrorCount);
+			+ '\n favorite errors: ' + favoriteErrorCount;
+
+			// mailgun update to mgRecipients
+		mg.sendText('heyjamesfranco@heyjamesfranco.com', //sender
+			mgRecipients, //recipient(s)
+			"franco update", //subject
+			results, // text
+			null,
+			null,
+			function(error) { //callback
+				if (error) {
+					console.error(Date() + 'mailgun error' + error);	
+				}
+			});
+		
+		console.log(results);
 	});
 }
 
