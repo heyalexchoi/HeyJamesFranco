@@ -6,7 +6,6 @@ var Mailgun = require('mailgun').Mailgun;
 var mgRecipients = require('./mailgun-recipients');
 env(__dirname + '/.env');
 
-
 // credentials stored in local, uncommitted .env file
 var T = new Twit({
 	consumer_key:         process.env.TWITTER_CONSUMER_KEY 
@@ -22,8 +21,10 @@ var mg = new Mailgun(process.env.MAILGUN_API_KEY);
 function Counter() {
 	this.retweets = 0;
 	this.favorites = 0;
+	this.followed = 0;
 	this.retweetErrors = 0;
 	this.favoriteErrors = 0;
+	this.followedErrors = 0;
 	this.tweets = 0;
 	this.connected = 0;
 	this.limit = 0;
@@ -40,8 +41,10 @@ function emailCounterNumbers() {
 	var message = '\n' + Date() 
 	+ '\n retweeted: ' + counter.retweets 
 	+ '\n favorited: ' + counter.favorites 
+	+ '\n followed: ' + counter.followed
 	+ '\n retweet errors: ' + counter.retweetErrors 
 	+ '\n favorite errors: ' + counter.favoriteErrors
+	+ '\n followed errors: ' + counter.followedErrors
 	+ '\n tweets: ' + counter.tweets
 	+ '\n connected' + counter.connected
 	+ '\n limit' + counter.limit
@@ -88,9 +91,21 @@ function favoriteTweetID(tweetID) {
 		});	
 	});
 }
+
+function followUserID (userID) {
+	return Q.Promise(function (fullfill, reject) {
+		T.post('friendships/create', { user_id: userID.toString() }, function(error, data, response) {
+			if (error) reject(error);
+			else fullfill(data);
+		});	
+	});
+}
+
+
+var francoID = '2708171460';
+var francoScreenName = 'heyjamesfranco';
 // monitor any mentions of:
 var keywords = [ 'james franco', '@jamesfrancotv', '@heyjamesfranco' ];
-
 var stream = T.stream('statuses/filter', { track: keywords.join() })
 
 // stream emitted tweet event:
@@ -98,59 +113,82 @@ stream.on('tweet', function (tweet) {
 	console.log(Date() + 'tweet: ' + tweet.text);
 	counter.tweets ++;
 
-	// retweet if below hourly limit
-	if (counter.retweets < 100) {
+	// ignore my own tweets
+	if (tweet.user.id_str === francoID) {
+		console.log('take no action on my own tweet: ' + tweet.text);
+		return;
+	}
+
+	// retweet if below hourly limit and did not already RT
+	if (counter.retweets < 100 && !tweet.current_user_retweet && !tweet.retweeted) {
 		reTweetID(tweet.id_str)
 		.then(function(data) {
 			console.log(Date() + 'retweeted: ' + data.text);
 			counter.retweets ++;
+			console.log('RETWEET THIS IS ME' + data.user.screen_name + data.user.id_str);
 		})
 		.catch(function(error) {
 			console.error(Date() + 'retweet error: ' + error.message);
 			counter.retweetErrors ++;
 		});
 	}
-	// but always favorite
-	favoriteTweetID(tweet.id_str)
+	// favorite if did not already favorite
+	if (!tweet.favorited) {
+		favoriteTweetID(tweet.id_str)
+		.then(function (data) {
+			console.log(Date() + 'favorited: ' + data.text);
+			counter.favorites ++;
+		})
+		.catch(function(error) {
+			console.error(Date() + 'favorite error:' + error.message);
+			counter.favoriteErrors ++;
+		});
+	}
+	// follow tweet's user if not already following and no requests and below 5 follow requests/hour
+	if (!tweet.user.following 
+		&& !tweet.user.follow_request_sent
+		&& counter.followed <= 5) {
+		followUserID(tweet.user.id_str)
 	.then(function (data) {
-		console.log(Date() + 'favorited: ' + data.text);
-		counter.favorites ++;
+		console.log(Date() + 'followed: ' + data.screen_name);
+		counter.followed ++;
 	})
-	.catch(function(error) {
-		console.error(Date() + 'favorite error:' + error.message);
-		counter.favoriteErrors ++;
+	.catch( function (error) {
+		console.error(Date() + 'follow error:' + error.message);
+		counter.followedErrors ++;
 	});
+}
 })
 
 
 stream.on('connected', function (response) {
-	console.log(Date() + 'connected:' + response);
+	console.error(Date() + 'connected:' + response);
 	counter.connected ++;
 })
 
 stream.on('limit', function (limitMessage) {
-	console.log(Date() + 'limit: ' + limitMessage);
+	console.error(Date() + 'limit: ' + limitMessage);
 	counter.limit ++;
 })
 
 stream.on('disconnect', function (disconnectMessage) {
-	console.log(Date() + 'disconnect: ' + disconnectMessage);
+	console.error(Date() + 'disconnect: ' + disconnectMessage);
 	counter.disconnect ++;
 })
 
 stream.on('connect', function (request) {
-	console.log(Date() + 'connect: ' + request);
+	console.error(Date() + 'connect: ' + request);
 	counter.connect ++;
 })
 
 
 stream.on('reconnect', function (request, response, connectInterval) {
-	console.log(Date() + 'reconnect: ' + request + response + connectInterval);
+	console.error(Date() + 'reconnect: ' + request + response + connectInterval);
 	counter.reconnect ++;
 })
 
 stream.on('warning', function (warning) {
-	console.log(Date() + 'warning: ' + warning);
+	console.error(Date() + 'warning: ' + warning);
 	counter.warning ++;
 })
 
