@@ -63,7 +63,6 @@ function emailCounterNumbers() {
 
 // every hour:
 var interval = setInterval( function () {
-	console.log('interval!');
 	emailCounterNumbers();
 		// reset the counter
 		counter = new Counter();
@@ -110,18 +109,17 @@ stream.on('tweet', function (tweet) {
 			console.error(Date() + 'retweet error: ' + error.message);
 			counter.retweetErrors ++;
 		});
-
-		favoriteTweetID(tweet.id_str)
-		.then(function (data) {
-			console.log(Date() + 'favorited: ' + data.text);
-			counter.favorites ++;
-		})
-		.catch(function(error) {
-			console.error(Date() + 'favorite error:' + error.message);
-			counter.favoriteErrors ++;
-		});
 	}
-
+	// but always favorite
+	favoriteTweetID(tweet.id_str)
+	.then(function (data) {
+		console.log(Date() + 'favorited: ' + data.text);
+		counter.favorites ++;
+	})
+	.catch(function(error) {
+		console.error(Date() + 'favorite error:' + error.message);
+		counter.favoriteErrors ++;
+	});
 })
 
 
