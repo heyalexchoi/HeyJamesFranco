@@ -4,3 +4,6 @@ franco-errors.log
 
 franco.log
 mailgun-recipients.js
+nohup.out
+stream-errors.log
+stream.log
