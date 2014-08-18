@@ -7,3 +7,4 @@ mailgun-recipients.js
 nohup.out
 stream-errors.log
 stream.log
+errors.log
