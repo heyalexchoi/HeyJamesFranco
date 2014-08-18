@@ -147,7 +147,7 @@ stream.on('tweet', function (tweet) {
 	// follow tweet's user if not already following and no requests and below 5 follow requests/hour
 	if (!tweet.user.following 
 		&& !tweet.user.follow_request_sent
-		&& counter.followed <= 5) {
+		&& counter.followed < 4) {
 		followUserID(tweet.user.id_str)
 	.then(function (data) {
 		console.log(Date() + 'followed: ' + data.screen_name);
