@@ -133,7 +133,7 @@ stream.on('tweet', function (tweet) {
 		});
 	}
 	// favorite if did not already favorite
-	if (counter.favorites < 150 && !tweet.favorited) {
+	if (counter.favorites < 100 && !tweet.favorited) {
 		favoriteTweetID(tweet.id_str)
 		.then(function (data) {
 			console.log(Date() + 'favorited: ' + data.text);
