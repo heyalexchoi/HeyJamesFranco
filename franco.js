@@ -6,6 +6,11 @@ var Mailgun = require('mailgun').Mailgun;
 var mgRecipients = require('./mailgun-recipients');
 env(__dirname + '/.env');
 
+var hourlyRetweetLimit = 100;
+var hourlyFavoriteLimit = 100;
+var hourlyFollowLimit = 5;
+var hourlyErrorLimit = 100;
+
 // credentials stored in local, uncommitted .env file
 var T = new Twit({
 	consumer_key:         process.env.TWITTER_CONSUMER_KEY 
@@ -113,6 +118,11 @@ stream.on('tweet', function (tweet) {
 	console.log(Date() + 'tweet: ' + tweet.text);
 	counter.tweets ++;
 
+	// stop doing stuff until the end of the hour if we get too many errors
+	if (counter.retweetErrors + counter.favoriteErrors + counter.followedErrors > hourlyErrorLimit) {
+		return;
+	}
+
 	// ignore my own tweets
 	if (tweet.user.id_str === francoID) {
 		console.log('take no action on my own tweet: ' + tweet.text);
@@ -120,7 +130,8 @@ stream.on('tweet', function (tweet) {
 	}
 
 	// retweet if below hourly limit and did not already RT
-	if (counter.retweets < 100 && !tweet.current_user_retweet && !tweet.retweeted) {
+	if (counter.retweets < hourlyRetweetLimit 
+		&& !tweet.current_user_retweet && !tweet.retweeted) {
 		reTweetID(tweet.id_str)
 		.then(function(data) {
 			console.log(Date() + 'retweeted: ' + data.text);
@@ -133,7 +144,7 @@ stream.on('tweet', function (tweet) {
 		});
 	}
 	// favorite if did not already favorite
-	if (counter.favorites < 100 && !tweet.favorited) {
+	if (counter.favorites < hourlyFavoriteLimit && !tweet.favorited) {
 		favoriteTweetID(tweet.id_str)
 		.then(function (data) {
 			console.log(Date() + 'favorited: ' + data.text);
@@ -147,7 +158,7 @@ stream.on('tweet', function (tweet) {
 	// follow tweet's user if not already following and no requests and below 5 follow requests/hour
 	if (!tweet.user.following 
 		&& !tweet.user.follow_request_sent
-		&& counter.followed < 4) {
+		&& counter.followed < hourlyFollowLimit) {
 		followUserID(tweet.user.id_str)
 	.then(function (data) {
 		console.log(Date() + 'followed: ' + data.screen_name);
